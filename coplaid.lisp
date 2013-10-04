@@ -36,7 +36,7 @@
 (defun/ps sum-neighbors (array x y)
   (loop for i from (1- x) to (1+ x)
      sum (loop for j from (1- y) to (1+ y)
-               unless (= i j)
+               unless (and (= i x) (= j y))
 		  sum (get-state array i j))))
 
 (defun/ps compute-next (array)
@@ -46,9 +46,9 @@
 			  (sum-neighbors array x y)))))
 
 (defparameter/ps *glider*
-    '((0 1 0)
-      (0 0 1)
-      (1 1 1)))
+    '((0 0 1)
+      (1 0 1)
+      (0 1 1)))
 
 (defun asciify (array)
   (loop for y from 0 to *columns*
@@ -124,13 +124,11 @@
 				  (add-class (if (= 0 (get-state *state* x y))
 						 "zero"
 						 "one"))))))
-	    (set-interval
-	     (lambda ()
-	       ;(loop while (some (lambda (row)
-				;(some #'plusp row))
-				;*state*)
+            (defun tick ()
 		 (update-screen)
-		 (setf *state* (compute-next *state*))) 500))))
+		 (setf *state* (compute-next *state*)))
+	    (set-interval tick 500)
+            )))
       )
      (:body
       (:table :width "100%" :height "100%" :id "cells"
@@ -139,7 +137,7 @@
 	     do (cl-who:htm (:tr
 		      (loop for x from 0 to *columns*
 			 do (cl-who:htm (:td :class "zero"
-					     :id (format nil "cell_~A_~A" y x)))))))))))))
+					     :id (format nil "cell_~A_~A" x y)))))))))))))
 
 
 
